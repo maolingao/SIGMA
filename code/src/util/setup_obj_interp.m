@@ -51,10 +51,13 @@ switch objDef
 %         plbo = pi'*Lcot*pi;
 
         Lcot = cotmatrix(X.vertices, X.faces);
-        [~, xProj] = orthoProjector([X.vertices, ones(size(X.vertices, 1), 1)]);
-        vProj = Vvar - xProj * (xProj' * Vvar);
-        vLap = Lcot * vProj;
+        [~, xProj] = orthoProjector([X.vertices, ones(size(X.vertices, 1), 1)]); % xProj ~ \tilde{X}, they span the same (4-dim) subspace, which we would like to include into the kernel of the project LBO.
+
+	%---- idea: the following lines compute \Pi Lcot \Pi V from right to left incrementally.
+        vProj = Vvar - xProj * (xProj' * Vvar); % \Pi V = (I-\tilde{X}(\tilde{X}^T\tilde(X))\tilde{X}^T) V
+        vLap = Lcot * vProj; % Lcot \Pi V
         
+	% vLap - xProj * (xProj' * vLap) = \Pi Lcot \Pi V
         Obj = norm(vLap - xProj * (xProj' * vLap), normType) / (diameter * numel(Vvar));
 
 		
